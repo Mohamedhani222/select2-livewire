@@ -20,6 +20,7 @@ First, ensure proper hydration in your Livewire component:
 public function hydrate()
 {
     $this->dispatchBrowserEvent('refreshSelect2');
+    // or dispatch('refreshSelect2') if livewire 3
 }
 ```
 
