@@ -56,7 +56,7 @@ public function patients()
     if (\request()->ajax()) {
         $search = trim(\request('search'));
         
-        $posts = DB::table('patients')
+        $patients = DB::table('patients')
             ->select('id', 'first_name as text')
             ->where(function ($query) use ($search) {
                 $query->where('id', $search)
@@ -65,10 +65,10 @@ public function patients()
             })
             ->simplePaginate(10);
             
-        $morePages = !empty($posts->nextPageUrl());
+        $morePages = !empty($patients->nextPageUrl());
         
         $results = [
-            "results" => $posts->items(),
+            "results" => $patients->items(),
             "pagination" => [
                 "more" => $morePages
             ]
