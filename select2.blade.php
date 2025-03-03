@@ -1,17 +1,28 @@
+
 @php
     $optionNameCol = $attributes->get('option_col') ?? 'name';
     $selectId = $attributes->get('id') ?? 'select2_' . uniqid();
-
+    $use_wire_model = $attributes->get('use_wire_model');
+    $selectedObj =$attributes->get('selectedObj');
+    $selectedObjValue =$attributes->get('selectedObjValue');
 @endphp
 
+
 <div {{ $attributes->has('wire:model') ? 'wire:ignore' : '' }}>
-    <select  class="{{$attributes->get('class')}}" id="{{$selectId}}" {{ $attributes->except(['option_col', 'url']) }}>
+
+    <select class="{{$attributes->get('class')}}" id="{{$selectId}}" {{ $attributes->except(['option_col', 'url']) }}>
         <option>اختر</option>
+        @if($selectedObj)
+            <option value="{{$selectedObj->id}}">{{$selectedObjValue ?? $selectedObj->name}}</option>
+
+        @endif
         @if(isset($options))
             @foreach($options as $option)
                 <option value="{{$option->id}}">{{$option->$optionNameCol}}</option>
             @endforeach
         @endif
+
+
     </select>
 </div>
 
@@ -37,14 +48,17 @@
 
     function initSelect2_{{$selectId}}() {
         const select2Instance = $('#{{$selectId}}');
+        var $p = select2Instance.parent();
 
         if (select2Instance.data('select2')) {
             select2Instance.select2('destroy');
         }
+
         select2Instance.select2({
 
             allowClear: true,
             width: '100%',
+            dropdownParent: $p,
             @if(isset($url))
             ajax: {
                 url: `{{$url}}`,
@@ -63,10 +77,13 @@
             }
             @endif
         });
+        select2Instance.on('select2:open', function() {
+            document.querySelector('.select2-search__field').focus()
+        });
 
         select2Instance.on('change', function () {
             const data = $(this).val();
-            const name = $(this).attr('wire:model');
+            const name = $(this).attr("{{$use_wire_model ? 'wire:model' : 'id' }}");
             @this.set(name, data);
         });
     }
